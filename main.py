@@ -1,10 +1,10 @@
 from astrbot.api.all import *
-from astrbot.api.event import filter # 显式导入 filter 模块，避免与 Python 内置 filter 函数冲突
+from astrbot.api.event import filter
 import logging
 
 logger = logging.getLogger("astrbot")
 
-@register("selective_reply", "夕小柠 & 陆渊", "选择性回复：赋予 AI 拒绝冒昧请求的权利。", "1.2.8")
+@register("selective_reply", "夕小柠 & 陆渊", "选择性回复：赋予 AI 拒绝冒昧请求的权利。", "1.2.9")
 class SelectiveReply(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
@@ -30,8 +30,10 @@ class SelectiveReply(Star):
         
         try:
             if event.message_obj:
-                current_raw = getattr(event.message_obj, 'raw_message', "")
-                event.message_obj.raw_message = (current_raw or "") + instruction
+                raw = event.message_obj.raw_message
+                if not isinstance(raw, str):
+                    raw = str(raw)
+                event.message_obj.raw_message = raw + instruction
                 logger.info(f"[SelectiveReply] 已为用户 {sender_id} 注入拦截准则。")
         except Exception as e:
             logger.error(f"[SelectiveReply] 注入准则失败: {e}")
