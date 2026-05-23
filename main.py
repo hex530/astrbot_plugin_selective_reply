@@ -1,19 +1,24 @@
 from astrbot.api.all import *
+from astrbot.api.event import filter # 显式导入 filter 模块，避免与 Python 内置 filter 函数冲突
 import logging
 
 logger = logging.getLogger("astrbot")
 
-@register("selective_reply", "夕小柠 & 陆渊", "选择性回复：赋予 AI 拒绝冒昧请求的权利。", "1.2.4")
+@register("selective_reply", "夕小柠 & 陆渊", "选择性回复：赋予 AI 拒绝冒昧请求的权利。", "1.2.8")
 class SelectiveReply(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
         self.config = config
 
-    @event_message_type(EventMessageType.ALL)
-    async def on_received_message(self, event: AstrMessageEvent):
-        '''
-        在消息到达 LLM 之前，将拦截规则注入到上下文。
-        '''
+    @filter.event_message_type(filter.EventMessageType.PRIVATE_MESSAGE)
+    async def on_private_message(self, event: AstrMessageEvent):
+        await self._inject_instruction(event)
+
+    @filter.event_message_type(filter.EventMessageType.GROUP_MESSAGE)
+    async def on_group_message(self, event: AstrMessageEvent):
+        await self._inject_instruction(event)
+
+    async def _inject_instruction(self, event: AstrMessageEvent):
         sender_id = str(event.get_sender_id())
         admin_qq = str(self.config.get("admin_qq", "1591793025"))
         if sender_id == admin_qq: return
@@ -31,11 +36,8 @@ class SelectiveReply(Star):
         except Exception as e:
             logger.error(f"[SelectiveReply] 注入准则失败: {e}")
 
-    @on_decorating_result()
+    @filter.on_decorating_result()
     async def handle_decorating_result(self, event: AstrMessageEvent):
-        '''
-        检测生成的回复，如果包含暗号则拦截。
-        '''
         result = event.get_result()
         if not result: return
         
