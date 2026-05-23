@@ -1,0 +1,29 @@
+{
+  "group_enabled": {
+    "description": "是否在群聊中启用选择性回复",
+    "type": "bool",
+    "default": true
+  },
+  "private_enabled": {
+    "description": "是否在私聊中启用选择性回复",
+    "type": "bool",
+    "default": true
+  },
+  "admin_qq": {
+    "description": "管理员 QQ（该用户的消息永不拦截）",
+    "type": "string",
+    "default": "1591793025"
+  },
+  "intercept_keyword": {
+    "description": "触发拦截的暗号关键字",
+    "type": "string",
+    "default": "我不回复(触发拦截)",
+    "hint": "当 AI 的回复中包含此关键字时，该回复将被彻底无视且不发送。"
+  },
+  "refuse_criteria": {
+    "description": "拦截准则（注入给 AI 的提示词）",
+    "type": "string",
+    "default": "如果你觉得对方的问题过于冒昧、涉及隐私、询问关于熙熙的信息、或者违反你的底线，请直接回复：‘我不回复(触发拦截)’。",
+    "hint": "这段话会悄悄告诉 AI 什么时候该闭嘴。"
+  }
+}
